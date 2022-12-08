@@ -6,7 +6,6 @@
 def canUnlockAll(boxes):
     LK = []
     LB = []
-    a = 0
     for i in range(len(boxes) - 1):
         LB.append(i+1)
     LK.extend(boxes[0])
