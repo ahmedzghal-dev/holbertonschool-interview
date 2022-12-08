@@ -10,8 +10,8 @@ def canUnlockAll(boxes):
     for i in range(len(boxes) - 1):
         LB.append(i+1)
     LK.extend(boxes[0])
-    T = 1
-    B = 7
+    T = []
+    B = []
     Z = LK[0:len(LK)]
     while len(LB) != 0 and T != B:
         Z = LK[0:len(LK)]
