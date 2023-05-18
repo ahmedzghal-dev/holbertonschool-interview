@@ -1,103 +1,127 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "binary_trees.h"
-
-
 /**
- * sort - ....
- * @tmp: ....
- * Return: ....
- **/
-heap_t *sort(heap_t *tmp)
-{
-	int n;
-
-	while (tmp->left || tmp->right)
-	{
-		if (!tmp->right || tmp->left->n > tmp->right->n)
-		{
-			n = tmp->n;
-			tmp->n = tmp->left->n;
-			tmp->left->n = n;
-			tmp = tmp->left;
-		}
-		else if (!tmp->left || tmp->left->n < tmp->right->n)
-		{
-			n = tmp->n;
-			tmp->n = tmp->right->n;
-			tmp->right->n = n;
-			tmp = tmp->right;
-		}
-
-	}
-	return (tmp);
-}
-
-
-/**
- * preorder - ....
- * @root: ....
- * @node: ....
- * @h: ....
- * @l: ....
- **/
-void preorder(heap_t *root, heap_t **node, size_t h, size_t l)
-{
-	if (!root)
-		return;
-	if (h == l)
-		*node = root;
-	l++;
-	if (root->left)
-		preorder(root->left, node, h, l);
-	if (root->right)
-		preorder(root->right, node, h, l);
-}
-
-
-/**
- * checklen - ....
- * @tree: ....
- * Return: ....
+ * heapify - fix the heap_max
+ * @root: head of the heap tree
+ * Return: Nothing
  */
-static size_t checklen(const binary_tree_t *tree)
+void heapify(binary_tree_t *root)
 {
-	size_t h_left;
-	size_t h_right;
+	binary_tree_t *child = NULL;
+	int tem_num = 0;
 
-	h_left = tree->left ? 1 + checklen(tree->left) : 0;
-	h_right = tree->right ? 1 + checklen(tree->right) : 0;
-	return (h_left > h_right ? h_left : h_right);
+	while (1)
+	{
+		if (!root->left)
+			break;
+		else if (!root->right)
+			child = root->left;
+		else
+		{
+			if (root->left->n >= root->right->n)
+				child = root->left;
+			else
+				child = root->right;
+		}
+
+		if (root->n >= child->n)
+			break;
+
+		tem_num = root->n;
+		root->n = child->n;
+		child->n = tem_num;
+
+		root = child;
+	}
 }
 
 /**
- * heap_extract - ....
- * @root: ....
- * Return: ....
+ * get_num_nodes - get the number of nodes of heap tree
+ * @root: head of the heap tree
+ * Return: all the nodes in heap tree
+ */
+int get_num_nodes(heap_t *root)
+{
+	int l = 0, r = 0;
+
+	if (!root)
+		return (0);
+
+	l = get_num_nodes(root->left);
+	r = get_num_nodes(root->right);
+
+	return (1 + l + r);
+}
+
+/**
+ * get_last_node - get the last node in heap_min
+ * @root: head of the heap tree
+ * Return: last node in heap_min
+ */
+binary_tree_t *get_last_node(heap_t *root)
+{
+	int nodes = 0, size_heap = 0;
+	binary_tree_t *last_node = NULL;
+
+	size_heap = get_num_nodes(root);
+
+	for (nodes = 1; nodes <= size_heap; nodes <<= 1)
+		;
+	nodes >>= 2;
+
+	for (last_node = root; nodes > 0; nodes >>= 1)
+	{
+		if (size_heap & nodes)
+			last_node = last_node->right;
+		else
+			last_node = last_node->left;
+	}
+
+	return (last_node);
+}
+/**
+ * heap_extract -  extracts the root node of a Max Binary Heap.
+ * @root: a double pointer to the root node of the heap.
+ * Return: If your function fails, return 0 otherwise root node number.
  */
 int heap_extract(heap_t **root)
 {
-	int value;
-	heap_t *tmp, *node;
+	binary_tree_t *last_node = NULL, *head_node = NULL;
+	int extracted_num = 0;
 
 	if (!root || !*root)
 		return (0);
-	tmp = *root;
-	value = tmp->n;
-	if (!tmp->left && !tmp->right)
+	head_node = *root;
+	if (!head_node->left && !head_node->right)
 	{
+		extracted_num = head_node->n;
+		free(head_node);
 		*root = NULL;
-		free(tmp);
-		return (value);
+		return (extracted_num);
 	}
-	preorder(tmp, &node, checklen(tmp), 0);
-	tmp = sort(tmp);
-	tmp->n = node->n;
-	if (node->parent->right)
-		node->parent->right = NULL;
+
+	head_node = *root;
+	extracted_num = head_node->n;
+
+	last_node = get_last_node(*root);
+
+	if (last_node->parent->left == last_node)
+		last_node->parent->left = NULL;
 	else
-		node->parent->left = NULL;
-	free(node);
-	return (value);
+		last_node->parent->right = NULL;
+
+	last_node->left = head_node->left;
+	last_node->right = head_node->right;
+	last_node->parent = head_node->parent;
+
+	if (head_node->left)
+		head_node->left->parent = last_node;
+	if (head_node->right)
+		head_node->right->parent = last_node;
+
+	*root = last_node;
+	free(head_node);
+
+	heapify(*root);
+
+	return (extracted_num);
 }
