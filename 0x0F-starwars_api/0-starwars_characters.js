@@ -1,37 +1,39 @@
 #!/usr/bin/node
-// a script that prints all characters of a Star Wars movie.
+/*
+    Write a script that prints all characters of a Star Wars movie
+*/
 
+const args = process.argv.slice(2);
+if (args < 1) {
+  console.log('Error');
+  process.exit(1);
+}
+
+const episode = args[0];
+
+const url = 'https://swapi-api.hbtn.io/api/films/' + episode;
 const request = require('request');
-const movieId = process.argv[2];
-
-request(`https://swapi-api.hbtn.io/api/films/${movieId}/`, function (error, response, body) {
-  if (error) {
-    console.log(`Error: Could not retrieve movie details for Movie ID ${movieId}`);
-    return;
-  }
-
-  if (response.statusCode !== 200) {
-    console.log(`Error: Could not retrieve movie details for Movie ID ${movieId}`);
-    return;
-  }
-
-  const movie = JSON.parse(body);
-  const characterUrls = movie.characters;
-
-  characterUrls.forEach(function (characterUrl) {
-    request(characterUrl, function (error, response, body) {
-      if (error) {
-        console.log(`Error: Could not retrieve character details for URL ${characterUrl}`);
-        return;
+let characters = [];
+request(url, (err, resp, body) => {
+  if (err || resp.statusCode !== 200) console.log(err);
+  else characters = JSON.parse(body).characters;
+  const size = Object.keys(characters).length;
+  const array = Array(size).fill();
+  let data = 0;
+  for (let i = 0; i < size; i++) {
+    request(characters[i], (erro, respo, bodys) => {
+      if (erro || respo.statusCode !== 200) console.log(erro);
+      else {
+        array[i] = JSON.parse(bodys).name;
+        data++;
       }
-
-      if (response.statusCode !== 200) {
-        console.log(`Error: Could not retrieve character details for URL ${characterUrl}`);
-        return;
+      if (data === size) {
+        for (let j = 0; j < size; j++) {
+          console.log(array[j]);
+        }
       }
+    }
 
-      const character = JSON.parse(body);
-      console.log(character.name);
-    });
-  });
+    );
+  }
 });
