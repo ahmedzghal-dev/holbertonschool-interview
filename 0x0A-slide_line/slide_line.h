@@ -1,18 +1,12 @@
-#ifndef SLIDE_TLINE_H_
-#define SLIDE_TLINE_H_
+#ifndef SLIDE_LINE_H
+#define SLIDE_LINE_H
 
-#include <stddef.h>
-#include <sched.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #define SLIDE_LEFT 0
-#define SLIDE_RIGHT 
+#define SLIDE_RIGHT 1
 
-static void print_array(int const *array, size_t size);
 int slide_line(int *line, size_t size, int direction);
-
-
-
 
 #endif

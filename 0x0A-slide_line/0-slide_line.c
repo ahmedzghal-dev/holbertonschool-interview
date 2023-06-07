@@ -1,76 +1,58 @@
-#include <stdlib.h>
-#include <stdio.h>
-
 #include "slide_line.h"
 
-#define LINE_SIZE   32
-
 /**
- * print_array - Prints out an array of integer, followed by a new line
- * 
- * @array: Pointer to the array of integer to be printed
- * @size: Number of elements in @array
+ * slide_line - Slide and merge an array of ints
+ * @line: Array to slide
+ * @size: Size of the array
+ * @direction: Direction in which to slide the array
+ * Return: 0 on failure otherwise 1
  */
-static void print_array(int const *array, size_t size)
+
+int slide_line(int *line, size_t size, int direction)
 {
-    size_t i;
+    size_t aux, mark = 0, p1 = 0, p2 = 1, t1, t2;
 
-    printf("Line: ");
-    for (i = 0; i < size; i++)
-        printf("%s%d", i > 0 ? ", " : "", array[i]);
-    printf("\n");
-}
+    if (direction != SLIDE_LEFT && direction != SLIDE_RIGHT)
+        return (0);
+    p1 = (direction == SLIDE_RIGHT) ? size - 1 : p1;
+    p2 = (direction == SLIDE_RIGHT) ? size - 2 : p2;
 
-/**
- * main - Entry point
- *
- * @ac: Arguments counter
- * @av: Arguments vector
- *
- * Return: EXIT_SUCCESS or EXIT_FAILURE
- */
-int main(int ac, char **av)
-{
-    int line[LINE_SIZE];
-    int direction;
-    size_t i, size;
-
-    if (ac < 3)
+    for (t1 = 0; t1 < size; t1++)
     {
-        fprintf(stderr, "Usage: %s <R/L> <n1> [n2...]\n", av[0]);
-        return (EXIT_FAILURE);
+        aux = p2;
+        mark = 0;
+        for (t2 = t1 + 1; t2 < size; t2++)
+        {
+            if (line[p1] != 0 && line[p2] == line[p1])
+            {
+                line[p1] = line[p1] * 2;
+                line[p2] = 0;
+                break;
+            }
+
+            if (line[p1] == 0 && line[p2] != 0)
+            {
+                line[p1] = line[p2];
+                line[p2] = 0;
+                mark = 1;
+                p2 = aux;
+                t1--;
+                break;
+            }
+
+            if (line[p2] != 0)
+                break;
+            direction == SLIDE_LEFT ? p2++ : p2--;
+        }
+        if (line[p1] == 0)
+            break;
+        if (mark == 0)
+        {
+            p1 = (direction == SLIDE_LEFT) ? p1 + 1 : p1;
+            p1 = (direction == SLIDE_RIGHT) ? p1 - 1 : p1;
+            p2 = (direction == SLIDE_LEFT) ? p1 + 1 : p2;
+            p2 = (direction == SLIDE_RIGHT) ? p1 - 1 : p2;
+        }
     }
-
-    size = ac - 2;
-    if (size > LINE_SIZE)
-        size = LINE_SIZE;
-    for (i = 0; i < size; i++)
-        line[i] = atoi(av[i + 2]);
-
-    print_array(line, size);
-
-    switch (*(av[1]))
-    {
-    case 'L':
-        direction = SLIDE_LEFT;
-        printf("Slide to the left\n");
-        break;
-    case 'R':
-        direction = SLIDE_RIGHT
-        printf("Slide to the right\n");
-        break;
-    default:
-        fprintf(stderr, "Unknown direction '%c'. Please use 'L' or 'R'", *(av[1]));
-        return (EXIT_FAILURE);
-    }
-
-    if (!slide_line(line, size, direction))
-    {
-        fprintf(stderr, "Failed to slide and merge line\n");
-        return (EXIT_FAILURE);
-    }
-
-    print_array(line, size);
-
-    return (EXIT_SUCCESS);
+    return (1);
 }
