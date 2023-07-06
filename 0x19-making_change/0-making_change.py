@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Module used to add two arrays."""
+"""determine the fewest number of coins needed"""
 
 
 def makeChange(coins, total):
