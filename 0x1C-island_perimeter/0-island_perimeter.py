@@ -5,7 +5,10 @@
 
 
 def island_perimeter(grid):
-
+    """
+    Input: List of Lists
+    Returns: Perimeter of the island
+    """
     count = 0
     row = len(grid)
     col = len(grid[0]) if row else 0
